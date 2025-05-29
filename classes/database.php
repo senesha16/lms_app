@@ -87,14 +87,26 @@ class database{
 
     }
 
-    function addAuthor($authorFN, $authorLN, $authorBD, $authorNat){
-        
+    function viewAuthors()
+    {
         $con = $this->opencon();
-        
+        return $con->query("SELECT * FROM Authors")->fetchAll();
+    }   
+
+    function viewAuthorsID($id)
+    {
+        $con = $this->opencon();
+        $stmt = $con->prepare("SELECT * FROM Authors WHERE author_ID = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    function addAuthor($authorFN, $authorLN, $authorBD, $authorNat){
+        $con = $this->opencon();
         try{
             $con->beginTransaction();
 
-            $stmt = $con->prepare("INSERT INTO authors (author_FN, author_LN, author_birthday, author_nat) VALUES (?, ?, ?, ?)");
+            $stmt = $con->prepare("INSERT INTO Authors (author_FN, author_LN, author_birthday, author_nat) VALUES (?, ?, ?, ?)");
             $stmt->execute([$authorFN, $authorLN, $authorBD, $authorNat]);
 
             $authorID = $con->lastInsertId();
@@ -109,10 +121,32 @@ class database{
 
     }
 
-    function addGenre($genreName){
-        
+
+    function updateAuthor($id, $fn, $ln, $birthdate, $nat) {
+        $con = $this->opencon(); // Add this line to get the PDO connection
+        $sql = "UPDATE Authors SET author_FN=?, author_LN=?, author_birthday=?, author_nat=? WHERE author_ID=?";
+        $stmt = $con->prepare($sql); // Prepare the statement
+        return $stmt->execute([$fn, $ln, $birthdate, $nat, $id]);
+    }
+
+    function updateUser($user_id, $firstname, $lastname, $birthday, $sex, $username, $password) {
+    try {
         $con = $this->opencon();
-        
+        $con->beginTransaction();
+        $query = $con->prepare("UPDATE users SET user_firstname=?, user_lastname=?,user_birthday=?, user_sex=?,user_name=?, user_pass=? WHERE user_id=?");
+        $query->execute([$firstname, $lastname,$birthday,$sex,$username, $password, $user_id]);
+        // Update successful
+        $con->commit();
+        return true;
+    } catch (PDOException $e) {
+        // Handle the exception (e.g., log error, return false, etc.)
+         $con->rollBack();
+        return false; // Update failed
+    }
+}
+
+    function addGenre($genreName){
+        $con = $this->opencon();
         try{
             $con->beginTransaction();
 
@@ -131,8 +165,25 @@ class database{
 
     }
 
-    
- 
- 
+    function viewGenres()
+    {
+        $con = $this->opencon();
+        return $con->query("SELECT * FROM Genres ORDER BY genre_id")->fetchAll();
+    }   
+
+    function viewGenresID($id)
+    {
+        $con = $this->opencon();
+        $stmt = $con->prepare("SELECT * FROM Genres WHERE genre_id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    function updateGenre($id, $name) {
+    $con = $this->opencon();
+    $sql = "UPDATE Genres SET genre_name=? WHERE genre_id=?";
+    $stmt = $con->prepare($sql);
+    return $stmt->execute([$name, $id]);
+}
 }
 ?>

@@ -1,46 +1,53 @@
 <?php
- 
 session_start();
- 
 require_once('classes/database.php');
 $con = new database();
- 
-$sweetAlertConfig = ""; //Initialize SweetAlert script variable
- 
-if (isset($_POST['adds_genres'])) {
- 
-  $genreName = $_POST['genre_name'];
-  $genreID = $con->addGenre($genreName);
- 
- 
-  if ($genreID) {
- 
-    $sweetAlertConfig = "
-    <script>
-   
-    Swal.fire({
-        icon: 'success',
-        title: 'Genre added successfully!',
-        text: 'The genre has been successfully added to the system.',
-        confirmationButtontext: 'OK'
-     }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = 'index.php'
-        }
-            });
- 
-    </script>";
- 
-  } else {
- 
-    $_SESSION['error'] = "Sorry, there was an error signing up.";
-   
-  }
- 
-}
- 
-?>
+$sweetAlertConfig = "";
 
+if (empty($_POST['id'])) {
+    header("Location: admin_homepage.php");
+    exit();
+}
+
+$id = $_POST['id'];
+$data = $con->viewGenresID($id);
+
+if (isset($_POST['updateGenre'])) {
+    $id = $_POST['id'];
+    $genre_name = $_POST['genre_name'];
+
+    $result = $con->updateGenre($id, $genre_name);
+
+    if ($result) {
+        $sweetAlertConfig = "
+            <script>
+              document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Genre Updated Successfully',
+                  text: 'The genre has been successfully updated.',
+                  confirmButtonText: 'OK'
+                }).then(() => {
+                  window.location.href = 'admin_homepage.php';
+                });
+              });
+            </script>";
+    } else {
+        $sweetAlertConfig = "
+            <script>
+              document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Oops...',
+                  text: 'An error occurred while updating genre. Please try again.',
+                  confirmButtonText: 'OK'
+                });
+              });
+            </script>";
+    }
+}
+?>
+ 
 <!doctype html>
 <html lang="en">
 <head>
@@ -88,13 +95,14 @@ if (isset($_POST['adds_genres'])) {
   </nav>
 <div class="container my-5 border border-2 rounded-3 shadow p-4 bg-light">
 
-  <h4 class="mt-5">Add New Genre</h4>
-  <form id="registrationForm" method="post" action="" novalidate>
+  <h4 class="mt-5">Update Existing Genre</h4>
+  <form method="post" action="" novalidate>
+    <input type="hidden" name="id" value="<?php echo htmlspecialchars($data['genre_id']); ?>">
     <div class="mb-3">
       <label for="genreName" class="form-label">Genre Name</label>
-      <input type="text" name="genre_name" class="form-control" id="genreName" required>
+      <input type="text" name="genre_name" class="form-control" id="genreName" value="<?php echo htmlspecialchars($data['genre_name']); ?>" required>
     </div>
-    <button type="submit" name="adds_genres" class="btn btn-primary">Add Genre</button>
+    <button type="submit" name="updateGenre" class="btn btn-primary">Update Genre</button>
   </form>
   <script src="./package/dist/sweetalert2.js"></script>
   <?php echo $sweetAlertConfig; ?>
