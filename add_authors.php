@@ -28,7 +28,7 @@ if (isset($_POST['add'])) {
         confirmationButtontext: 'OK'
      }).then((result) => {
         if (result.isConfirmed) {
-            window.location.href = 'login.php'
+            window.location.href = 'admin_homepage.php'
         }
             });
  
