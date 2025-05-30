@@ -21,10 +21,6 @@ if(isset($_POST['login'])) {
     $_SESSION['user_FN'] = $user['user_FN'];
     $_SESSION['user_type'] = $user['user_type'];
 
-    echo  $_SESSION['user_id'];
-    echo  $_SESSION['user_FN'];
-     echo  $_SESSION['user_type'];
-
      $redirectUrl = ($user['user_type'] == 1) ? 'admin_homepage.php' : 'homepage.php';
 
     $sweetAlertConfig = "<script>
